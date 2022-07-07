@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  socket:
+    image: node:18.4.0-alpine
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      CLIENT_URL: "http://127.0.0.1"
+      CLIENT_API_KEY: "secret"
+    command: "yarn start"
+  redis:
+    image: redis:7.0.2-alpine
+    restart: unless-stopped
+    command: redis-server
+    ports:
+      - "6379"
