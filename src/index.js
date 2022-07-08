@@ -3,7 +3,8 @@ const socketIo = require('socket.io')
 const http = require('http')
 const app = express()
 const routes = require('./routes')
-const socketRedis = require('socket.io-redis')
+const { createClient } = require('redis')
+const { createAdapter } = require('@socket.io/redis-adapter')
 const gracefulShutdown = require('http-graceful-shutdown')
 const httpServer = http.createServer(app)
 const port = process.env.PORT || 3000
@@ -22,7 +23,9 @@ const io = socketIo(httpServer, {
 })
 
 // Handling multiple nodes: https://socket.io/docs/v4/using-multiple-nodes/
-io.adapter(socketRedis({ host: redisHost, port: redisPort }))
+const pubClient = createClient({ url: `redis://${redisHost}:${redisPort}` })
+const subClient = pubClient.duplicate()
+io.adapter(createAdapter(pubClient, subClient))
 
 // HTTP Routes
 routes(app, io)
