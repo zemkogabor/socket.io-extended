@@ -10,7 +10,7 @@ COPY yarn.lock .
 
 RUN yarn install --production
 
-COPY src/ .
+COPY src/ src
 
 EXPOSE 3000
 
