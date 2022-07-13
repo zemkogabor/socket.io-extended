@@ -1,3 +1,3 @@
 module.exports = {
-  auth: require('./modules/auth'),
+  authClient: require('./modules/authClient'),
 }

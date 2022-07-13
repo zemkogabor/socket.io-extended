@@ -1,24 +1,24 @@
-const { auth } = require('./middlewares')
+const { authClient } = require('./middlewares')
 
 module.exports = (app, io) => {
   // "Emit" endpoint for broadcast http request.
-  app.post('/emit', auth, (req, res) => {
+  app.post('/emit', authClient, (req, res) => {
     const event = req.body.event
     const namespace = req.body.namespace
     const data = req.body.data
 
     if (event === undefined || !(typeof event === 'string')) {
-      res.statusCode = 401
+      res.statusCode = 400
       return res.json({ message: 'Event name missing.' })
     }
 
     if (namespace === undefined || !(typeof namespace === 'string')) {
-      res.statusCode = 401
+      res.statusCode = 400
       return res.json({ message: 'Namespace missing.' })
     }
 
     if (data === undefined) {
-      res.statusCode = 401
+      res.statusCode = 400
       return res.json({ message: 'Data missing.' })
     }
 
