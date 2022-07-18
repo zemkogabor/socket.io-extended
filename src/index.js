@@ -1,8 +1,9 @@
 const express = require('express')
-const socketIo = require('socket.io')
+const { Server } = require('socket.io')
 const http = require('http')
 const app = express()
-const routes = require('./routes')
+const createHttpRoutes = require('./routes')
+const createAdminNamespace = require('./namespaces/admin.js')
 const { createClient } = require('redis')
 const { createAdapter } = require('@socket.io/redis-adapter')
 const gracefulShutdown = require('http-graceful-shutdown')
@@ -15,23 +16,28 @@ const redisPort = process.env.REDIS_PORT || 6379
 app.enable('trust proxy')
 app.use(express.json())
 
-const io = socketIo(httpServer, {
+const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 })
 
+// HTTP Routes
+createHttpRoutes(app, io)
+
+// Admin namespace
+createAdminNamespace(io)
+
 // Handling multiple nodes: https://socket.io/docs/v4/using-multiple-nodes/
 const pubClient = createClient({ url: `redis://${redisHost}:${redisPort}` })
 const subClient = pubClient.duplicate()
-io.adapter(createAdapter(pubClient, subClient))
 
-// HTTP Routes
-routes(app, io)
-
-httpServer.listen(port, () => {
-  console.log(`Server running at http://127.0.0.1:${port}/`)
+Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+  io.adapter(createAdapter(pubClient, subClient))
+  httpServer.listen(port, () => {
+    console.log(`Server running at http://127.0.0.1:${port}/`)
+  })
 })
 
 // Handle SIGINT or SIGTERM and drain connections.

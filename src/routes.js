@@ -5,6 +5,7 @@ module.exports = (app, io) => {
   app.post('/emit', authClient, (req, res) => {
     const event = req.body.event
     const namespace = req.body.namespace
+    const room = req.body.room
     const data = req.body.data
 
     if (event === undefined || !(typeof event === 'string')) {
@@ -12,9 +13,14 @@ module.exports = (app, io) => {
       return res.json({ message: 'Event name missing.' })
     }
 
-    if (namespace === undefined || !(typeof namespace === 'string')) {
+    if (namespace !== undefined && !(typeof namespace === 'string')) {
       res.statusCode = 400
-      return res.json({ message: 'Namespace missing.' })
+      return res.json({ message: 'Invalid namespace.' })
+    }
+
+    if (room !== undefined && !(typeof room === 'string') && !(typeof room === 'number')) {
+      res.statusCode = 400
+      return res.json({ message: 'Invalid room.' })
     }
 
     if (data === undefined) {
@@ -22,7 +28,18 @@ module.exports = (app, io) => {
       return res.json({ message: 'Data missing.' })
     }
 
-    io.of(namespace).emit(event, data)
+    let _io = io
+
+    if (namespace !== undefined) {
+      _io = _io.of(namespace)
+    }
+
+    if (room !== undefined) {
+      _io = _io.to(room)
+    }
+
+    _io.emit(event, data)
+
     res.send()
   })
 
