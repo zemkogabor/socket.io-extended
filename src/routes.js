@@ -1,8 +1,8 @@
-const { authClient } = require('./middlewares')
+const { authHttpClient } = require('./middlewares')
 
 module.exports = (app, io) => {
   // "Emit" endpoint for broadcast http request.
-  app.post('/emit', authClient, (req, res) => {
+  app.post('/emit', authHttpClient, (req, res) => {
     const event = req.body.event
     const namespace = req.body.namespace
     const room = req.body.room
