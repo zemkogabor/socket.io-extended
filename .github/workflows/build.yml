@@ -4,6 +4,9 @@ on:
     workflows: ["Lint"]
     types:
       - completed
+  push:
+    tags:
+      - '*'
 jobs:
   docker:
     runs-on: ubuntu-22.04
@@ -24,7 +27,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push ${{ steps.meta.outputs.tags }}
+      - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
