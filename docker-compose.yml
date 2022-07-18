@@ -8,6 +8,8 @@ services:
     working_dir: /app
     ports:
       - "${PORT-3002}:3000"
+    depends_on:
+      - redis
     environment:
       REDIS_HOST: "${REDIS_HOST}"
       REDIS_PORT: "${REDIS_PORT}"
