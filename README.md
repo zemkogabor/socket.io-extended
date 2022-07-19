@@ -1,6 +1,6 @@
 # Socket.io - Realtime Service
 
-- Socket.io as service.
+- Socket.io as a service.
 - Multiple node support.
 - Custom Express.js endpoints.
 - Include `/admin` namespace with room token auth. (Each user is placed in a room based on their token.)
