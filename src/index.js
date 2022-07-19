@@ -11,6 +11,9 @@ const httpServer = http.createServer(app)
 const port = process.env.PORT || 3000
 const redisHost = process.env.REDIS_HOST || '127.0.0.1'
 const redisPort = process.env.REDIS_PORT || 6379
+const redisUsername = process.env.REDIS_USERNAME || 'default'
+const redisPassword = process.env.REDIS_PASSWORD || ''
+const redisDb = process.env.REDIS_DB || 0
 
 // This ensures the request IP matches the client and not the load-balancer.
 app.enable('trust proxy')
@@ -30,7 +33,7 @@ createHttpRoutes(app, io)
 createAdminNamespace(io)
 
 // Handling multiple nodes: https://socket.io/docs/v4/using-multiple-nodes/
-const pubClient = createClient({ url: `redis://${redisHost}:${redisPort}` })
+const pubClient = createClient({ url: `redis://${redisUsername}:${redisPassword}@${redisHost}:${redisPort}/${redisDb}` })
 const subClient = pubClient.duplicate()
 
 Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
